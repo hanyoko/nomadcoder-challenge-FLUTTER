@@ -1,0 +1,744 @@
+#4.0
+
+class
+Flutter에서는 모든 게 class
+
+
+class Player {
+  String name = 'han';
+  int xp = 1500;
+}
+
+void main() {
+  var player = Player();
+  print(player.name);
+  player.name = 'lalala';
+  print(player.name);
+}
+
+//han
+//lalala
+
+
+만약, Player의 name을 바꾸지 못하게 하고 싶으면 어떻게 해야될까 ?
+
+class Player {
+  final String name = 'han';
+  int xp = 1500;
+}
+
+void main() {
+  var player = Player();
+  print(player.name);
+  player.name = 'lalala';
+  print(player.name);
+}
+
+final 입력하면 player.name = 'lalala';에서 오류 출력
+final은 변수가 아닌 상수라서 값을 변경할 수 없다.
+
+
+class Player {
+  final String name = 'han';
+  int xp = 1500;
+
+  void sayHello() {
+    var name = '121';
+    print("Hi my name is $name");
+  }
+}
+
+void main() {
+  var player = Player();
+  player.sayHello();
+}
+
+//Hi my name is 121
+
+
+class 안에 property를 고정시킬 때 final 이 아니고 const면 왜 안될까 잠깐 고민했었습니다. 어차피 final로 고정시킬경우 컴파일 전에 알고 있는 값이 아닌가, 그럼 const도 되는거 아닌가란 생각이 들었거든요. 그래서 final을 const로 바꿔봤더니 const는 static field에서만 사용 가능하다고 에러가 뜨네요. static이 앞에 붙으면 const가 가능해집니다. static 선언을 하게 되면 property가 instance가 아닌 class 자체에 귀속되게 되어 instance를 만들지 않아도 property 확인이 바로 가능합니다.(아래는 예시)
+class Player {
+static const String species = 'human'; //변경불가
+static String planet = 'earch'; //변경가능
+final String name = 'JS'; //변경불가
+String job = 'Housekeeper'; //변경가능
+}
+void main() {
+print(Player.species);
+print(Player.planet);
+var player = Player();
+print(player.name);
+print(player.job);
+}
+
+
+그렇군요, 이해하기 어려운 부분에 대해 질문해주셔서 감사합니다. Dart 언어에서 const와 final의 차이점을 설명해보겠습니다.
+
+const는 컴파일 타임에 이미 알려진, 즉 변경할 수 없는 값을 나타내며, 메모리에 한 번 할당되면 변경할 수 없습니다. 이러한 이유로 const는 클래스의 인스턴스 변수로 사용할 수 없습니다. 이는 각 인스턴스는 실행 중에 생성되고 값이 할당되는데, 이것이 const의 컴파일 시점에 결정되어야 하는 조건과 상충합니다.
+
+그러나 const는 클래스 레벨에서 사용될 수 있습니다. 이런 변수는 'static'으로 선언되어야 합니다. 이는 클래스 자체에 연결되어 있으며, 이 클래스의 모든 인스턴스에서 동일하게 참조됩니다. const로 선언된 변수는 한 번 설정되면 변경할 수 없습니다.
+
+반면에 final 변수는 한 번만 설정할 수 있지만, 그 값은 런타임에 결정될 수 있습니다. 이는 객체 인스턴스화를 통해 값이 할당될 수 있음을 의미합니다. final 변수는 각 인스턴스마다 고유한 값을 가질 수 있으므로, 클래스의 인스턴스 변수로 설정할 수 있습니다.
+
+따라서, Dart에서 const는 static 필드에서만 사용 가능한 이유는 const 값이 컴파일 시점에 결정되어야 하고, 이는 각 인스턴스의 런타임 값과는 다르기 때문입니다. 그러나 final은 런타임에 값이 결정되기 때문에, 인스턴스 변수로 사용될 수 있습니다.
+
+---
+
+#4.1
+
+class Player {
+  late final String name;
+  late int xp;
+  
+  Player(String name, int xp) {
+    this.name = name;
+    this.xp = xp;
+  }
+
+  void sayHello() {
+    var name = '121';
+    print("Hi my name is $name");
+  }
+}
+
+void main() {
+  var player = Player("han", 1500);
+  player.sayHello();
+}
+
+name 과 xp에 오류가 발생
+-> 값을 주지 않아서
+
+late를 넣어주면 오류 해결 -> 나중에 값을 넣어줄 것이다
+
+
+class Player {
+  late final String name;
+  late int xp;
+  
+  Player(String name, int xp) {
+    this.name = name;
+    this.xp = xp;
+  }
+
+  void sayHello() {
+    print("Hi my name is $name");
+  }
+}
+
+void main() {
+  var player = Player("han", 1500);
+  player.sayHello();
+  var player2 = Player("ko", 2500);
+  player2.sayHello();
+}
+
+//Hi my name is han
+//Hi my name is ko
+
+
+constructors
+
+
+class Player {
+  final String name;
+  int xp;
+  
+  Player(this.name, this.xp);
+
+  void sayHello() {
+    print("Hi my name is $name");
+  }
+}
+
+void main() {
+  var player = Player("Yohan", 1500);
+  player.sayHello();
+  var player2 = Player("Owen", 2500);
+  player2.sayHello();
+}
+
+//Hi my name is Yohan
+//Hi my name is Owen
+
+
+late 를 사용하지 않아도 되는 이유를 예측해본다면, 다음과 같습니다.
+
+생성자 Player(this.name, this.xp) 를 정의하고 해당 클래스의 인스턴스를 생성한다면
+1. 프로퍼티 또한 할당됨과 동시에 초기화가 이루어질 것 같습니다.
+ex : Player('nico', 1500) 는 final String name = 'nico'; int xp = 1500;
+과 동일할 것 같습니다.
+
+만약 그렇지 않고, 다음과 같이 생성자를 정의하고 해당 클래스의 인스턴스를 생성한다면
+Player(String name, int xp) { this.name = name; this.xp = xp; }
+1. 프로퍼티가 초기화 되지 않은 상태로 할당 될 것 같습니다.
+2. 이후 인자들을 받아 프로퍼티 초기화를 진행할 것 같습니다.
+
+결론적으로 할당과 초기화가 동시에 이루어지느냐 아니냐의 차이로 late 키워드의 사용이 정해지는 것 같습니다.
+
+근데 이 부분은 크게 중요하지 않습니다. ayaan 님이 올려주신 stackoverflow 링크를 보시면 late 는 꼭 필요할 때만 사용하기를 권장하기 때문입니다. 그래서 너무 late 의 유무에 초점을 두지 마시고, 상황에 따라 그리고 코드의 목적을 명확하게 나타내야 할 때 사용된다고 알아두면 될 것 같습니다.
+
+---
+
+#4.2
+
+class Player {
+  final String name;
+  int xp;
+  String team;
+  int age;
+  
+  Player({this.name, this.xp, this.team, this.age});
+
+  void sayHello() {
+    print("Hi my name is $name");
+  }
+}
+
+void main() {
+  var player = Player(
+    name: "Yohan",
+    xp: 1500, 
+    team: 'red', 
+    age: 12);
+  
+  var player2 = Player("Owen", 2500, 'blue', 12);
+}
+
+
+
+
+class Player {
+  final String name;
+  int xp;
+  String team;
+  int age;
+  
+  Player({this.name, this.xp, this.team, this.age});
+
+  void sayHello() {
+    print("Hi my name is $name");
+  }
+}
+
+void main() {
+  var player = Player(
+    name: "Yohan",
+    xp: 1500, 
+    team: 'red', 
+    age: 12,
+  );
+  
+  var player2 = Player(
+    name: "Owen", 
+    xp: 2500, 
+    team: 'blue', 
+    age: 12,
+  );
+}
+
+
+
+class Player {
+  final String name;
+  int xp;
+  String team;
+  int age;
+  
+  Player({
+    required this.name, 
+    required this.xp, 
+    required this.team, 
+    required this.age
+  });
+
+  void sayHello() {
+    print("Hi my name is $name");
+  }
+}
+
+void main() {
+  var player = Player(
+    name: "Yohan",
+    xp: 1500, 
+    team: 'red', 
+    age: 12,
+  );
+  
+  var player2 = Player(
+    name: "Owen", 
+    xp: 2500, 
+    team: 'blue', 
+    age: 12,
+  );
+}
+
+
+
+클래스가 거대해질 경우 위와 같이 생성자 함수를 만드는 것은 비효율적일 것이다.
+예를 들어보면
+```dart
+class Team {
+  final String name;
+  int age;
+  String description;
+
+  Team(this.name, this.age, this.description);
+}
+
+void main(){
+// 너무 많은 인자를 받아야 해서 헷갈린다.
+// 거기다 각 인자의 의미를 알 수가 없다.
+  var myTeam = Team("jisoung", 17, "Happy coding is end coding");
+```
+
+이 문제를 해결할려면 너무 간단하다.
+첫 번째는 중괄호({})를 이용하는 것이다.
+
+```dart
+class Team {
+  final String name;
+  int age;
+  String description;
+
+  Team({this.name, this.age, this.description});
+}
+
+void main(){
+// 한 눈에 볼 수 있다.
+  var player = Player(
+  name: "jisoung",
+  age: 17,
+  description: "Happy coding is end coding"
+  }
+}
+```
+두 번째는 name parameter를 사용하는 것이다.
+```dart
+// 생략
+Player(name:"jisoung", age: 17, description: "Happy coding is end coding");
+```
+하지만 여기에는 큰 문제가 있다.
+변수가 null일 수도 있기 때문에 우리는 이걸 required를 이용하거나 기본 값을 줘서 처리해 줘야한다. 우리는 required를 사용할 것이다.
+
+```dart
+// 생략
+Team({
+  required this.name,
+  required this.age,
+  required this.description,
+});,
+```
+훨씬 좋아졌다.
+
+
+//final 변수는 실행시점에 값을 결정하는 반면, const 변수는 컴파일 타임에 값을 결정합니다.
+//이러한 차이로 인해 const 변수는 런타임 성능이 더 좋습니다.
+//Dart에서는 final 변수를 사용하여 값을 한 번만 할당할 수 있도록 하여 프로그램의 안정성을 높일 수 있으며, const 변수는 컴파일 타임에 값을 계산하여 런타임 성능을 향상시킬 수 있습니다.
+
+//#4.3
+
+//Named Constructor
+
+class Player {
+  final String name;
+  int xp, age;
+  String team;
+  
+  Player({
+    required this.name, 
+    required this.xp, 
+    required this.team, 
+    required this.age,
+  });
+
+  Player.createBluePlayer({
+    required String name, 
+    required int age,
+  }) : this.age = age,
+       this.name = name,
+       this.team = 'blue',
+       this.xp = 0;
+  
+   Player.createRedPlayer(String name, int age)
+     : this.age = age,
+       this.name = name,
+       this.team = 'red',
+       this.xp = 0;
+  
+  void sayHello() {
+    print("Hi my name is $name");
+  }
+}
+
+void main() {
+  var player = Player.createBluePlayer(
+    name: "Yohan",
+    age: 12,
+  );
+  
+  var redPlayer = Player.createRedPlayer("han", 10,);
+}
+
+
+---
+
+#4.4 Recap
+
+class Player {
+  final String name;
+  int xp;
+  String team;
+
+  Player.fromJson(Map<String, dynamic> playerJson)
+      : name = playerJson['name'],
+        xp = playerJson['xp'],
+        team = playerJson['team'];
+
+  void sayHello() {
+    print("Hi my name is $name");
+  }
+}
+
+void main() {
+  var apiData = [
+    {
+      "name": "ko",
+      "team": "red",
+      "xp": 0,
+    },
+    {
+      "name": "yo",
+      "team": "blue",
+      "xp": 0,
+    },
+    {
+      "name": "han",
+      "team": "green",
+      "xp": 0,
+    },
+  ];
+
+  apiData.forEach((playerJson) {
+    var player = Player.fromJson(playerJson);
+    player.sayHello();
+  });
+}
+
+
+
+apiData 의 각각 Object 아이템을 playerJson 이라 칭하고, fromJson 생성자의 파라미터로 3번 반복하여 전달한다. fromJson 생성자에서 playerJson[’name’] 문법은 Object에서 해당 key값에 대응하는 value를 가져오는 것이다.
+
+
+---
+
+
+#4.5
+
+class Player {
+  String name;
+  int xp;
+  String team;
+
+  Player({
+    required this.name,
+    required this.xp,
+    required this.team,
+  });
+
+  void sayHello() {
+    print("Hi my name is $name");
+  }
+}
+
+void main() {
+  var han = Player(name: 'han', xp: 1200, team: 'red');
+  han.name = 'yohan';
+  han.xp = 1200000;
+  han.team = 'blue';
+}
+
+간단하게 수정
+
+void main() {
+  var han = Player(name: 'han', xp: 1200, team: 'red')
+  ..name = 'yohan'
+  ..xp = 1200000
+  ..team = 'blue';
+}
+
+변수 han을 적는 것 대신 ".." operater을 사용하면 코드를 단축시킬 수 있다.
+
+
+class Player {
+  String name;
+  int xp;
+  String team;
+
+  Player({
+    required this.name,
+    required this.xp,
+    required this.team,
+  });
+
+  void sayHello() {
+    print("Hi my name is $name");
+  }
+}
+
+
+*Cascade operator
+
+void main() {
+  var han = Player(name: 'han', xp: 1200, team: 'red');
+  var potato = han
+    ..name = 'yohan'
+    ..xp = 1200000
+    ..team = 'blue'
+    ..sayHello();
+}
+
+//Hi my name is yohan
+
+
+---
+
+Enums
+
+실수를 만들지 않도록 도와준다
+dart에서 enum type을 만드는 법은 다음과 같다
+
+enum Team { red, blue }
+enum XPLevel { beginer, medium, pro }
+
+class Player {
+  String name;
+  XPLevel xp;
+  Team team;
+
+  Player({
+    required this.name,
+    required this.xp,
+    required this.team,
+  });
+
+  void sayHello() {
+    print("Hi my name is $name");
+  }
+}
+
+void main() {
+  var han = Player(
+    name: 'han',
+    xp: XPLevel.beginer,
+    team: Team.red,
+  );
+  var potato = han
+    ..name = 'yohan'
+    ..xp = XPLevel.pro
+    ..team = Team.blue
+    ..sayHello();
+}
+
+
+---
+
+Abstract Classes
+
+추상화 클래스는 다른 클래스들이 직접 구현 해야하는 메소드들을 모아놓은 일종의 `청사진`이라 보면 된다.
+추상 클래스에서는 기능을 구현하지 않는다.
+
+abstract class Human {
+  void walk();
+  
+}
+
+enum Team { red, blue }
+enum XPLevel { beginer, medium, pro }
+
+class Player extends Human {
+  String name;
+  XPLevel xp;
+  Team team;
+
+  Player({
+    required this.name,
+    required this.xp,
+    required this.team,
+  });
+
+  void sayHello() {
+    print("Hi my name is $name");
+  }
+}
+
+void main() {
+  var han = Player(
+    name: 'han',
+    xp: XPLevel.beginer,
+    team: Team.red,
+  );
+  var potato = han
+    ..name = 'yohan'
+    ..xp = XPLevel.pro
+    ..team = Team.blue
+    ..sayHello();
+}
+
+
+abstract 를 생성하고 class에 extends 해주면 
+Error: The non-abstract class 'Player' is missing implementations for these members:
+ - Human.walk
+이러한 오류가 발생 
+why? Player는 walk란 메소드를 가지고 있지 않기 때문
+
+*extends (상속, 확장)
+
+
+추상 클래스는 다른 클래스들이 직접 구현해야 하는 필드와 메소드들을 모아놓은 클래스이다.
+추상 클래스는 아직 메소드와 내용이 추상적이므로 객체를 생성할 수 없다.
+추상 클래스를 상속받는 클래스들은 추상 클래스의 메소드들을 구현해야 한다.
+예제를 통해 추상 클래스에 대해 알아보자.
+abstract class Person { // 추상 클래스
+void walk(); // 메소드의 반환값만 설정
+}
+class Player extends Person { // 추상 클래스를 상속받음. walk라는 메소드를 구현해야 함
+String name;
+int xp;
+String team;
+
+Player({required this.name, required this.xp, required this.team});
+
+void walk() { // 추상 메소드 재정의
+print("Player is walking");
+}
+
+void sayHello() {
+print("Hi my name is $name");
+}
+}
+
+class Coach extends Person { // 추상 클래스를 상속받음
+void walk() { // 추상 메소드 재정의
+print("Coach is walking");
+}
+}
+
+void main() {
+var player = Player(name: 'coma', xp: 1700, team: 'blue');
+var coach = Coach();
+player.walk();
+coach.walk();
+}
+
+그럼 추상 메소드가 필요한 이유는 무엇일까?
+공통된 필드와 메소드를 통일하기 때문이다.
+클래스가 여러 개일 경우에는 전에 사용했던 필드 및 메소드와 이름과 규격이 달라질 수 있다. 추상클래스는 필드와 메소드를 같은 이름과 규격으로 만들게 함으로써 통일성을 유지해준다.
+
+
+---
+
+
+#4.8 Inheritance
+
+class Human {
+    final String name;
+    Human(this.name);
+    void sayHello() {
+        print("Hi my name is $name");
+    }
+}
+//상속을 하고 super를 이용해 부모 클래스의 생성자를 호출할 수 있다.
+
+enum Team { blue, red }
+
+enum Player extends Human {
+    final Team team;
+
+    Player({
+        required this.team,
+        required String name,
+    }) : super(name: name);
+    //// Human의 생성자 함수를 호출한다.
+}
+
+//super라는 키워드를 통해 (확장을 한) 부모 클래스와 상호작용할 수 있게 해준다.
+
+// void main() {
+//     var player = Player(
+//         team: Team.red, 
+//         name: 'han',
+//     );
+//     player.sayHello();
+// }
+
+
+void main() {
+    var player = Player(
+        team: Team.red, 
+        name: 'han',
+    );
+//@override를 이용해 부모 클래스의 객체를 받아올 수 있다.
+    @override
+    void sayHello(){
+        super.sayHello();
+        print('and I play for ${team}')
+    }
+}
+
+//Mixin
+//Mixin: 생성자가 없는 클래스
+//클래스에 프로펕를 추가할 때 사용
+
+class Strong {
+    final double strenghtLevel = 1500.99;
+}
+
+class QuickRunner {
+    void runQuick() {
+        print("ruuuuuuuuun !");
+    }
+}
+
+class Tall {
+    final double height = 1.99;
+}
+
+enum Team { blue, red }
+
+enum Player with Strong, QuickRunner, Tall {
+    final Team team;
+
+    Player({
+        required this.team,
+    });
+}
+
+class Horse with Strong, QuickRunner {}
+
+class Kid with QuickRunner {}
+
+void main() {
+    var player = Player(
+        team: Team.red,
+    );
+    player.runQuick();
+}
+
+// ## Mixins
+// Mixin은 생성자가 없는 클래스를 의미한다.
+// Mixin 클래스는 상속을 할 때 extends를 하지 않고 with 를 사용한다.
+// Mixin의 핵심은 여러 클래스에 재사용이 가능하다는 점이다.
+// ```dart
+// class Tall {
+// final double tall = "190.00"
+// }
+
+// class Human with Tail {
+// // 생략
+// }
+// ```
+// extends와 차이점은 extend를 하게 되면
+// 확장한 그 클래스는 부모 클래스가 되지만
+// with는 부모의 인스턴스 관계가 된다.
+// 단순하게 mixin 내부의 프로퍼티를 갖고 오는 거라고 생각하면 쉽다.
